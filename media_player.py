@@ -26,11 +26,15 @@ pygame.display.set_caption("Media Player")
 fonte = pygame.font.SysFont("hack", 32)
 tela = pygame.display.set_mode((dimensoes))
 
+
+
+
 #Variáveis
 backgorundcolor = (120,120,120)
 toplay = False
 ismuted = False
 isplaying = False
+volume = 40
 
 #Imagens
 play = pygame.image.load("/home/joao/Arquivos/media_player/files/play.png")
@@ -43,27 +47,6 @@ next = pygame.image.load("/home/joao/Arquivos/media_player/files/next.png")
 back = pygame.image.load("/home/joao/Arquivos/media_player/files/back.png")
 
 tela.fill(backgorundcolor)
-pygame.draw.rect(tela, (140,0,0), [0,0,700,38])
-
-# Mute / Umute
-if ismuted == True:
-    tela.blit(umute,(663,3))
-else:
-    tela.blit(mute,(663,3))
-
-# Play / Pause
-if isplaying == True:
-    tela.blit(pause,(15,3))
-else:
-    tela.blit(play,(15,3))
-
-# Up / Down
-tela.blit(down_volume,(513,3))
-tela.blit(up_volume,(456,3))
-
-# Next / Back
-tela.blit(back,(147,3))
-tela.blit(next,(204,3))
 
 y = 53
 d_x = []
@@ -79,7 +62,7 @@ for i in Musicas:
     tela.blit(text_name,[10,y+5])
     y += 47   
 
-def comandos(mouse, index):
+def comandos(mouse, index, volume, ismuted, isplaying):
     play = False
     for event in pygame.event.get():
         #Sair
@@ -98,8 +81,36 @@ def comandos(mouse, index):
                 if dx1 <= mouse[0] <= dx2 and dy1 <= mouse[1] <= dy2:
                     index = i
                     play = True
-                    print(index)
-    return index, play
+
+            # Back and Next
+            if 147 <= mouse[0] <= 179 and 3 <= mouse[1] <= 35:
+                index -= 1
+                play = True
+            if 204 <= mouse[0] <= 236 and 3 <= mouse[1] <= 35:
+                index += 1
+                play = True
+
+            # UP_Volume / Down_Volume
+            if 513 <= mouse[0] <= 545 and 3 <= mouse[1] <= 35:
+                volume -= 10
+            if 456 <= mouse[0] <= 488 and 3 <= mouse[1] <= 35:
+                volume += 10
+            
+            #Mute / Unmute
+            if 663 <= mouse[0] <= 695 and 3 <= mouse[1] <= 35:
+                if ismuted == True:
+                    ismuted = False
+                else:
+                    ismuted = True
+            
+            # Play / Pause
+            if 15 <= mouse[0] <= 47 and 3 <= mouse[1] <= 35:
+                if isplaying == True:
+                    isplaying = False
+                else:
+                    isplaying = True
+
+    return index, play, volume, ismuted, isplaying
 
 def get_time():
     tempo = time.time()
@@ -107,20 +118,45 @@ def get_time():
 
 player = AudioPlayer('')
 
-def play_music(index, toplay,player):
+def play_music(index, toplay,player,volume,ismuted):
     if toplay == True:
         player = AudioPlayer('/home/joao/Música/'+Musicas[index])
         player.play()
-    player.volume = 40
-    
+
+    if ismuted == False:
+        player.volume = volume
+    else:
+        player.volume = 0
     return player
 
-def desenhar_tela():
-    print("OK")
+def desenhar_tela(isplaying,ismuted):
+    pygame.draw.rect(tela, (140,0,0), [0,0,700,38])
 
-pygame.display.update()
-index = -1
+    # Mute / Umute
+    if ismuted == True:
+        tela.blit(umute,(663,3))
+    else:
+        tela.blit(mute,(663,3))
+
+    # Play / Pause
+    if isplaying == True:
+        tela.blit(pause,(15,3))
+    else:
+        tela.blit(play,(15,3))
+
+    # Up / Down
+    tela.blit(down_volume,(513,3))
+    tela.blit(up_volume,(456,3))
+
+    # Next / Back
+    tela.blit(back,(147,3))
+    tela.blit(next,(204,3))
+
+
+index = ''
 while True:
     mouse = pygame.mouse.get_pos()
-    index,toplay = comandos(mouse,index)
-    player = play_music(index,toplay, player)
+    index,toplay,volume,ismuted,isplaying = comandos(mouse,index,volume,ismuted,isplaying)
+    player = play_music(index,toplay, player,volume,ismuted)
+    desenhar_tela(isplaying,ismuted)
+    pygame.display.update()
