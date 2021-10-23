@@ -18,23 +18,27 @@ for i in files:
         with audioread.audio_open(str(path + i)) as sound:
             Music_duration.append(sound.duration)
 
+#Variáveis
+backgorundcolor = (120,120,120)
+toplay = False
+ismuted = False
+isplaying = False
+torepeat = False
+init_game = False
+volume = 40
+index = ''
+y = 53
+d_x = []
+d_y = []
 dimensoes = (700,700)
+player = AudioPlayer('')
 
 pygame.init()
 pygame.display.set_caption("Media Player")
 
 fonte = pygame.font.SysFont("hack", 32)
 tela = pygame.display.set_mode((dimensoes))
-
-
-
-
-#Variáveis
-backgorundcolor = (120,120,120)
-toplay = False
-ismuted = False
-isplaying = False
-volume = 40
+tela.fill(backgorundcolor)
 
 #Imagens
 play = pygame.image.load("/home/joao/Arquivos/media_player/files/play.png")
@@ -45,13 +49,10 @@ umute = pygame.image.load("/home/joao/Arquivos/media_player/files/umute.png")
 mute = pygame.image.load("/home/joao/Arquivos/media_player/files/mute.png")
 next = pygame.image.load("/home/joao/Arquivos/media_player/files/next.png")
 back = pygame.image.load("/home/joao/Arquivos/media_player/files/back.png")
+repeat = pygame.image.load("/home/joao/Arquivos/media_player/files/repeat.png")
+go = pygame.image.load("/home/joao/Arquivos/media_player/files/continue.png")
 
-tela.fill(backgorundcolor)
-
-y = 53
-d_x = []
-d_y = []
-
+#Desenhar Músicas
 for i in Musicas:
     pygame.draw.rect(tela, (255,255,255), [10,y,680,32])
     tela.blit(play,[643,y])
@@ -62,8 +63,8 @@ for i in Musicas:
     tela.blit(text_name,[10,y+5])
     y += 47   
 
-def comandos(mouse, index, volume, ismuted, isplaying):
-    play = False
+#Executar comandos
+def comandos(mouse, index, volume, ismuted, isplaying,torepeat,toplay):
     for event in pygame.event.get():
         #Sair
         if event.type == pygame.QUIT:
@@ -80,15 +81,15 @@ def comandos(mouse, index, volume, ismuted, isplaying):
                 
                 if dx1 <= mouse[0] <= dx2 and dy1 <= mouse[1] <= dy2:
                     index = i
-                    play = True
+                    toplay = True
 
             # Back and Next
             if 147 <= mouse[0] <= 179 and 3 <= mouse[1] <= 35:
                 index -= 1
-                play = True
+                toplay = True
             if 204 <= mouse[0] <= 236 and 3 <= mouse[1] <= 35:
                 index += 1
-                play = True
+                toplay = True
 
             # UP_Volume / Down_Volume
             if 513 <= mouse[0] <= 545 and 3 <= mouse[1] <= 35:
@@ -110,26 +111,17 @@ def comandos(mouse, index, volume, ismuted, isplaying):
                 else:
                     isplaying = True
 
-    return index, play, volume, ismuted, isplaying
+            # Repeat / Continue
+            if 325 <= mouse[0] <= 357 and 3 <= mouse[1] <= 35:
+                if torepeat == True:
+                    torepeat = False
+                else:
+                    torepeat = True
 
-def get_time():
-    tempo = time.time()
-    return tempo
+    return index, toplay, volume, ismuted, isplaying,torepeat
 
-player = AudioPlayer('')
-
-def play_music(index, toplay,player,volume,ismuted):
-    if toplay == True:
-        player = AudioPlayer('/home/joao/Música/'+Musicas[index])
-        player.play()
-
-    if ismuted == False:
-        player.volume = volume
-    else:
-        player.volume = 0
-    return player
-
-def desenhar_tela(isplaying,ismuted):
+#Desenhar APP BAR
+def desenhar_tela(isplaying,ismuted,torepeat):
     pygame.draw.rect(tela, (140,0,0), [0,0,700,38])
 
     # Mute / Umute
@@ -152,11 +144,46 @@ def desenhar_tela(isplaying,ismuted):
     tela.blit(back,(147,3))
     tela.blit(next,(204,3))
 
+    # Repeat / Continue
+    if torepeat == False:
+        tela.blit(repeat,(325,3))
+    else:
+        tela.blit(go,(325,3))
 
-index = ''
+#Tempo atual
+def tempo():
+    timestamp = int(round(time() * 1))
+    return timestamp
+
+tempo_init = 0
+
+#Tocar Músicas
+def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_game):
+    if toplay == True:
+        player = AudioPlayer('/home/joao/Música/'+Musicas[index])
+        player.play()
+        tempo_init = tempo()
+        init_game = True
+        toplay = False
+
+    if init_game == True:
+        if tempo() - tempo_init >= Music_duration[index]:
+            if torepeat == True:
+                toplay = True
+            else:
+                index = index + 1
+                toplay = True
+            
+
+    if ismuted == False:
+        player.volume = volume
+    else:
+        player.volume = 0
+    return player, tempo_init, init_game, toplay, index
+
 while True:
     mouse = pygame.mouse.get_pos()
-    index,toplay,volume,ismuted,isplaying = comandos(mouse,index,volume,ismuted,isplaying)
-    player = play_music(index,toplay, player,volume,ismuted)
-    desenhar_tela(isplaying,ismuted)
+    index,toplay,volume,ismuted,isplaying,torepeat = comandos(mouse,index,volume,ismuted,isplaying,torepeat,toplay)
+    player,tempo_init, init_game, toplay, index = play_music(index,toplay, player,volume,ismuted,torepeat,tempo_init,init_game)
+    desenhar_tela(isplaying,ismuted,torepeat)
     pygame.display.update()
