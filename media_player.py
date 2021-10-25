@@ -39,6 +39,7 @@ player = AudioPlayer('')
 pygame.init()
 pygame.display.set_caption("Media Player")
 
+
 fonte = pygame.font.SysFont("hack", 32)
 tela = pygame.display.set_mode((dimensoes))
 tela.fill(backgorundcolor)
@@ -54,6 +55,9 @@ next = pygame.image.load("/home/joao/Arquivos/media_player/files/next.png")
 back = pygame.image.load("/home/joao/Arquivos/media_player/files/back.png")
 repeat = pygame.image.load("/home/joao/Arquivos/media_player/files/repeat.png")
 go = pygame.image.load("/home/joao/Arquivos/media_player/files/continue.png")
+music_icon = pygame.image.load("/home/joao/Arquivos/media_player/files/music.png")
+
+pygame.display.set_icon(music_icon)
 
 #Desenhar Músicas
 for i in Musicas:
