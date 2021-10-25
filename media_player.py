@@ -24,7 +24,10 @@ toplay = False
 ismuted = False
 isplaying = False
 torepeat = False
-init_game = False
+init_music = False
+ispause = False
+temp_pause = 0
+temp_pause_tot = 0
 volume = 40
 index = ''
 y = 53
@@ -158,16 +161,17 @@ def tempo():
 tempo_init = 0
 
 #Tocar Músicas
-def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_game):
+def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_music,isplaying):
     if toplay == True:
         player = AudioPlayer('/home/joao/Música/'+Musicas[index])
         player.play()
         tempo_init = tempo()
-        init_game = True
+        init_music = True
+        isplaying = True
         toplay = False
 
-    if init_game == True:
-        if tempo() - tempo_init >= Music_duration[index]:
+    if init_music == True and ispause == False:
+        if tempo() - tempo_init - temp_pause_tot >= Music_duration[index]:
             if torepeat == True:
                 toplay = True
             else:
@@ -179,11 +183,28 @@ def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_game
         player.volume = volume
     else:
         player.volume = 0
-    return player, tempo_init, init_game, toplay, index
+    return player, tempo_init, init_music, toplay, index,isplaying
 
 while True:
     mouse = pygame.mouse.get_pos()
     index,toplay,volume,ismuted,isplaying,torepeat = comandos(mouse,index,volume,ismuted,isplaying,torepeat,toplay)
-    player,tempo_init, init_game, toplay, index = play_music(index,toplay, player,volume,ismuted,torepeat,tempo_init,init_game)
+    player,tempo_init, init_music, toplay, index, isplaying = play_music(index,toplay, player,volume,ismuted,torepeat,tempo_init,init_music,isplaying)
+    if isplaying == False and init_music == True:
+        if once_time == True:
+            time_init_pause = tempo()
+            once_time = False
+        temp_pause = tempo() - time_init_pause 
+        ispause = True
+        player.pause()  
+    elif isplaying == True and init_music == False:
+        index = 0
+        toplay = True     
+    else:
+        if ispause == True:
+            temp_pause_tot += temp_pause
+            ispause = False
+            player.resume()
+        once_time = True
+                
     desenhar_tela(isplaying,ismuted,torepeat)
     pygame.display.update()
