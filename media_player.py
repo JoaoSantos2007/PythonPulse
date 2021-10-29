@@ -92,17 +92,21 @@ def comandos(mouse, index, volume, ismuted, isplaying,torepeat,toplay):
 
             # Back and Next
             if 147 <= mouse[0] <= 179 and 3 <= mouse[1] <= 35:
-                index -= 1
-                toplay = True
+                if index > 0:
+                    index -= 1
+                    toplay = True
             if 204 <= mouse[0] <= 236 and 3 <= mouse[1] <= 35:
-                index += 1
-                toplay = True
+                if index < len(Musicas)-1:
+                    index += 1
+                    toplay = True
 
             # UP_Volume / Down_Volume
             if 513 <= mouse[0] <= 545 and 3 <= mouse[1] <= 35:
-                volume -= 10
+                if volume > 0:
+                    volume -= 10
             if 456 <= mouse[0] <= 488 and 3 <= mouse[1] <= 35:
-                volume += 10
+                if volume <= 90:
+                    volume += 10
             
             #Mute / Unmute
             if 663 <= mouse[0] <= 695 and 3 <= mouse[1] <= 35:
@@ -165,7 +169,7 @@ def tempo():
 tempo_init = 0
 
 #Tocar Músicas
-def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_music,isplaying):
+def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_music,isplaying,temp_pause_tot):
     if toplay == True:
         player = AudioPlayer('/home/joao/Música/'+Musicas[index])
         player.play()
@@ -173,6 +177,7 @@ def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_musi
         init_music = True
         isplaying = True
         toplay = False
+        temp_pause_tot = 0
 
     if init_music == True and ispause == False:
         if tempo() - tempo_init - temp_pause_tot >= Music_duration[index]:
@@ -187,12 +192,12 @@ def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_musi
         player.volume = volume
     else:
         player.volume = 0
-    return player, tempo_init, init_music, toplay, index,isplaying
+    return player, tempo_init, init_music, toplay, index,isplaying,temp_pause_tot
 
 while True:
     mouse = pygame.mouse.get_pos()
     index,toplay,volume,ismuted,isplaying,torepeat = comandos(mouse,index,volume,ismuted,isplaying,torepeat,toplay)
-    player,tempo_init, init_music, toplay, index, isplaying = play_music(index,toplay, player,volume,ismuted,torepeat,tempo_init,init_music,isplaying)
+    player,tempo_init, init_music, toplay, index, isplaying,temp_pause_tot = play_music(index,toplay, player,volume,ismuted,torepeat,tempo_init,init_music,isplaying,temp_pause_tot)
     if isplaying == False and init_music == True:
         if once_time == True:
             time_init_pause = tempo()
