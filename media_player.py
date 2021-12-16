@@ -7,6 +7,7 @@ import pygame
 from time import time
 
 path = '/home/joao/Música/'
+source = '/home/joao/Arquivos/media_player/files/'
 files = [f for f in listdir(path) if isfile(join(path, f))]
 Musicas = []
 Music_duration = []
@@ -45,17 +46,17 @@ tela = pygame.display.set_mode((dimensoes))
 tela.fill(backgorundcolor)
 
 #Imagens
-play = pygame.image.load("/home/joao/Arquivos/media_player/files/play.png")
-pause = pygame.image.load("/home/joao/Arquivos/media_player/files/pause.png")
-up_volume = pygame.image.load("/home/joao/Arquivos/media_player/files/add.png")
-down_volume = pygame.image.load("/home/joao/Arquivos/media_player/files/remove.png")
-umute = pygame.image.load("/home/joao/Arquivos/media_player/files/umute.png")
-mute = pygame.image.load("/home/joao/Arquivos/media_player/files/mute.png")
-next = pygame.image.load("/home/joao/Arquivos/media_player/files/next.png")
-back = pygame.image.load("/home/joao/Arquivos/media_player/files/back.png")
-repeat = pygame.image.load("/home/joao/Arquivos/media_player/files/repeat.png")
-go = pygame.image.load("/home/joao/Arquivos/media_player/files/continue.png")
-music_icon = pygame.image.load("/home/joao/Arquivos/media_player/files/music.png")
+play = pygame.image.load(source + "play.png")
+pause = pygame.image.load(source + "pause.png")
+up_volume = pygame.image.load(source + "add.png")
+down_volume = pygame.image.load(source + "remove.png")
+umute = pygame.image.load(source + "umute.png")
+mute = pygame.image.load(source + "mute.png")
+next = pygame.image.load(source + "next.png")
+back = pygame.image.load(source + "back.png")
+repeat = pygame.image.load(source + "repeat.png")
+go = pygame.image.load(source + "continue.png")
+music_icon = pygame.image.load(source + "music.png")
 
 pygame.display.set_icon(music_icon)
 
@@ -171,7 +172,7 @@ tempo_init = 0
 #Tocar Músicas
 def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_music,isplaying,temp_pause_tot):
     if toplay == True:
-        player = AudioPlayer('/home/joao/Música/'+Musicas[index])
+        player = AudioPlayer(path + Musicas[index])
         player.play()
         tempo_init = tempo()
         init_music = True
