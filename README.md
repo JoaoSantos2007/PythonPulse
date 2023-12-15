@@ -2,7 +2,6 @@
 PythonPulse é um media player desenvolvido em Python para reproduzir arquivos de áudio.
 
 ## Estrutura do Projeto
-
 Certifique-se de seguir esta estrutura de pasta para o projeto:
 
 ```
@@ -16,6 +15,12 @@ PythonPulse/
 ├── outros arquivos e pastas do projeto...
 │
 └── README.md
+```
+
+## Instalação
+Certifique-se de ter o Python, Pip, Pygame, AudioPlayer e AudioRead instalados. Para instalar as dependências execute o comando abaixo:
+```bash
+pip install pygame audioplayer audioread PyGObject
 ```
 
 ### Instruções
