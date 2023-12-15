@@ -1,14 +1,18 @@
 #Bibliotecas
 from audioplayer import AudioPlayer
-from os import listdir
-from os.path import isfile, join
+import os
 import audioread
 import pygame
 from time import time
 
-path = '/home/joao/Música/'
-source = '/home/joao/Arquivos/media_player/files/'
-files = [f for f in listdir(path) if isfile(join(path, f))]
+absolutePath = os.path.dirname(__file__)
+assetsPath = absolutePath + "/assets"
+
+musicsPath = absolutePath + "/audios"
+if not os.path.exists(musicsPath):
+    os.makedirs(musicsPath)
+
+files = [f for f in os.listdir(musicsPath) if os.path.isfile(os.path.join(musicsPath, f))]
 Musicas = []
 Music_duration = []
 
@@ -16,7 +20,7 @@ for i in files:
     music_ext = (i.split("."))[1]
     if music_ext == 'mp3':
         Musicas.append(i)
-        with audioread.audio_open(str(path + i)) as sound:
+        with audioread.audio_open(str(musicsPath + "/" + i)) as sound:
             Music_duration.append(sound.duration)
 
 #Variáveis
@@ -46,17 +50,17 @@ tela = pygame.display.set_mode((dimensoes))
 tela.fill(backgorundcolor)
 
 #Imagens
-play = pygame.image.load(source + "play.png")
-pause = pygame.image.load(source + "pause.png")
-up_volume = pygame.image.load(source + "add.png")
-down_volume = pygame.image.load(source + "remove.png")
-umute = pygame.image.load(source + "umute.png")
-mute = pygame.image.load(source + "mute.png")
-next = pygame.image.load(source + "next.png")
-back = pygame.image.load(source + "back.png")
-repeat = pygame.image.load(source + "repeat.png")
-go = pygame.image.load(source + "continue.png")
-music_icon = pygame.image.load(source + "music.png")
+play = pygame.image.load(assetsPath + "/play.png")
+pause = pygame.image.load(assetsPath + "/pause.png")
+up_volume = pygame.image.load(assetsPath + "/add.png")
+down_volume = pygame.image.load(assetsPath + "/remove.png")
+umute = pygame.image.load(assetsPath + "/umute.png")
+mute = pygame.image.load(assetsPath + "/mute.png")
+next = pygame.image.load(assetsPath + "/next.png")
+back = pygame.image.load(assetsPath + "/back.png")
+repeat = pygame.image.load(assetsPath + "/repeat.png")
+go = pygame.image.load(assetsPath + "/continue.png")
+music_icon = pygame.image.load(assetsPath + "/music.png")
 
 pygame.display.set_icon(music_icon)
 
@@ -172,7 +176,9 @@ tempo_init = 0
 #Tocar Músicas
 def play_music(index, toplay,player,volume,ismuted,torepeat,tempo_init,init_music,isplaying,temp_pause_tot):
     if toplay == True:
-        player = AudioPlayer(path + Musicas[index])
+        if not Musicas: 
+            return player, tempo_init, init_music, False, index,isplaying,temp_pause_tot
+        player = AudioPlayer(musicsPath + "/" + Musicas[index])
         player.play()
         tempo_init = tempo()
         init_music = True
